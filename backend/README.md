@@ -1,112 +1,295 @@
-# Gestor de Contactos — Backend
+# Gestor de Contactos — Backend 
 
-API REST para gestionar una agenda de contactos. Este backend permite crear, consultar, actualizar y eliminar contactos, con validación de datos y persistencia en MongoDB.
+> **Mi bitácora de aprendizaje.** Este README no es solo para instalar el proyecto: documenta **cómo lo construí desde cero** y por qué organicé el código de esta manera. El frontend con React + TypeScript será la siguiente etapa.
 
-> **Estado del proyecto:** backend CRUD funcional. El frontend con React y TypeScript se desarrollará como la siguiente etapa.
+## ¿Qué construí?
 
-## Tecnologías
+Una API REST con **Express + TypeScript + MongoDB/Mongoose** para crear, consultar, actualizar y eliminar contactos. Utilicé `express-validator` para validar las solicitudes y una clase `AppError` para representar errores con códigos HTTP.
 
-- **Node.js** y **Express** — servidor y rutas HTTP.
-- **TypeScript** — tipado estático.
-- **MongoDB Atlas** y **Mongoose** — almacenamiento y modelado de datos.
-- **express-validator** — validación de solicitudes.
-- **CORS** — comunicación con el frontend.
+**Campos de un contacto:** `name` (obligatorio), `telefono` (obligatorio), `email` (opcional). Mongoose agrega `createdAt` y `updatedAt` al activar `timestamps`.
 
-## Funcionalidades
+## Tecnologías utilizadas
 
-- Crear contactos con nombre y teléfono obligatorios; correo electrónico opcional.
-- Consultar todos los contactos o uno mediante su identificador.
-- Actualizar parcialmente la información de un contacto.
-- Eliminar contactos.
-- Comprobar teléfonos duplicados y correos duplicados cuando se proporciona un correo.
-- Responder con códigos HTTP apropiados y mensajes de error mediante `AppError`.
+- Node.js y npm
+- Express
+- TypeScript
+- MongoDB Atlas y Mongoose
+- dotenv, cors y express-validator
+- Bruno para probar la API
 
-## Estructura del backend
+## Estructura de carpetas
 
 ```text
 backend/
 ├── src/
 │   ├── config/
-│   │   ├── database.ts
-│   │   └── env.ts
+│   │   ├── database.ts           # Conexión a MongoDB
+│   │   └── env.ts                # Variables de entorno
 │   ├── controllers/
-│   │   └── ContactosController.ts
+│   │   └── ContactosController.ts # Recibe peticiones y envía respuestas
 │   ├── errors/
-│   │   └── AppError.ts
+│   │   └── AppError.ts           # Errores personalizados
 │   ├── middleware/
-│   │   └── validator.middleware.ts
+│   │   └── validator.middleware.ts # Devuelve errores de validación
 │   ├── models/
 │   │   └── contactos/
-│   │       ├── contact.model.ts
-│   │       └── contact.schema.ts
+│   │       ├── contact.model.ts  # Modelo de Mongoose
+│   │       └── contact.schema.ts # Estructura y reglas del contacto
 │   ├── routes/
-│   │   └── contactos.route.ts
+│   │   └── contactos.route.ts    # Define los endpoints
 │   ├── services/
-│   │   └── contactos.service.ts
+│   │   └── contactos.service.ts  # Lógica y consultas a la BD
 │   ├── types/
-│   │   └── contactos.interface.ts
+│   │   └── contactos.interface.ts # Interfaces y tipos
 │   ├── validators/
-│   │   └── contactos.validator.ts
-│   ├── app.ts
-│   └── server.ts
+│   │   └── contactos.validator.ts # Validaciones de POST/PATCH
+│   ├── app.ts                    # Configuración de Express
+│   └── server.ts                 # Arranque del servidor
+├── .env                          # Secretos (NO subir a Git)
+├── .gitignore
 ├── package.json
 └── tsconfig.json
 ```
 
-## Requisitos
+## Instalación y configuración desde la creación del proyecto
 
-- Node.js y npm instalados.
-- Una base de datos MongoDB (por ejemplo, MongoDB Atlas).
+Estos pasos sirven para **recrear el backend desde cero**, no solamente para ejecutar una copia descargada.
+
+###  Crear la carpeta e iniciar Node.js
+
+```bash
+mkdir backend
+cd backend
+npm init -y
+```
+
+**¿Qué aprendí?** `npm init -y` genera `package.json`, donde se registran las dependencias y los scripts.
+
+###  Instalar las dependencias de la aplicación
+
+```bash
+npm install express mongoose cors dotenv express-validator
+```
+
+- `express`: servidor y rutas HTTP.
+- `mongoose`: conexión y operaciones con MongoDB.
+- `cors`: permite solicitudes desde el frontend.
+- `dotenv`: carga las variables del archivo `.env`.
+- `express-validator`: valida los datos recibidos.
+
+###  Instalar TypeScript y herramientas de desarrollo
+
+```bash
+npm install -D typescript @types/node @types/express @types/cors tsx
+```
+
+`-D` guarda dependencias de desarrollo. `tsx` es **una opción** para ejecutar TypeScript durante el desarrollo; si mi proyecto utiliza otra herramienta, conservo los scripts que ya tengo.
+
+###  Crear y configurar TypeScript
+
+```bash
+npx tsc --init
+```
+
+Configuración de referencia para `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"]
+}
+```
+
+Para usar `import`/`export` con `NodeNext`, añadir en `package.json`:
+
+```json
+"type": "module"
+```
+
+**Recordatorio:** con esta configuración, los imports relativos entre archivos TypeScript se escriben con extensión `.js` (por ejemplo, `import app from "./app.js"`).
+
+###  Configurar scripts y ejecutar
+
+Si utilizo `tsx`, estos scripts son una opción en `package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  }
+}
+```
+
+```bash
+npm run dev
+```
+
+> Los scripts son **ejemplos reproducibles**. Debo mantener los que correspondan a mi configuración real de `package.json`.
 
 
-## instalacion y configuracion desde la creacion del proyecto.
-1. Inicia el proyecto de express
-    ```bash 
-        npm init 
-    ```
+###  Crear las carpetas del backend
 
-## Instalación y configuracion desde gitclone
+```bash
+mkdir -p src/{config,controllers,errors,middleware,models/contactos,routes,services,types,validators}
+touch src/app.ts src/server.ts
+```
 
-1. Clona el repositorio y entra a la carpeta del backend:
+La idea es **separar responsabilidades**: la ruta decide qué controlador ejecutar; el controlador gestiona HTTP; el servicio contiene la lógica; el modelo accede a MongoDB.
 
-   ```bash
-   git clone <URL_DE_TU_REPOSITORIO>
-   cd <NOMBRE_DEL_REPOSITORIO>/backend
-   ```
+###  Preparar variables de entorno
 
-2. Instala las dependencias:
+Crear `.env` en la raíz de `backend/`:
 
-   ```bash
-   npm install
-   ```
+```env
+APP_PORT=3000
+MONGODB_URI=mongodb+srv://USUARIO:CONTRASENA@CLUSTER/BASE_DE_DATOS
+```
 
-3. Crea un archivo `.env` en la carpeta `backend`:
+En `src/config/env.ts`, leer `process.env.APP_PORT` y `process.env.MONGODB_URI`, y validar que exista la URI antes de intentar conectar.
 
-   ```env
-   APP_PORT=3000
-   MONGODB_URI=mongodb+srv://<usuario>:<password>@<cluster>/<base_de_datos>
-   ```
+Crear `.gitignore`:
 
-   Sustituye los valores de ejemplo por los de tu entorno. **No subas el archivo `.env` a GitHub.**
+```gitignore
+node_modules/
+dist/
+.env
+```
 
-4. Inicia el servidor con el script de desarrollo definido en tu `package.json` (por ejemplo, `npm run dev`, si existe).
+**Nunca subir credenciales reales a GitHub.**
 
-## Endpoints
+###  Configurar la conexión a MongoDB
 
-URL base de ejemplo: `http://localhost:3000/api/contactos`
+En `src/config/database.ts` usar `mongoose.connect(...)` con la URI de entorno. En `server.ts`, **esperar la conexión antes de escuchar peticiones**.
 
-| Método | Ruta | Descripción |
+Flujo que seguí:
+
+```text
+server.ts
+  ├── conecta con MongoDB (database.ts)
+  └── si conecta correctamente → app.listen(...)
+```
+
+###  Configurar Express en `app.ts`
+
+Registrar `cors()`, `express.json()`, la ruta de salud y las rutas de contactos:
+
+```ts
+import express from "express";
+import cors from "cors";
+import ContactosRouter from "./routes/contactos.route.js";
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.get("/api/health", (_req, res) => {
+  res.json({ msg: "API funcionando" });
+});
+
+app.use("/api/contactos", ContactosRouter);
+
+export default app;
+```
+
+###  Crear el esquema y modelo de contacto
+
+En `contact.schema.ts` definir los campos:
+
+- `name`: `String`, requerido y con `trim`.
+- `telefono`: `String`, requerido.
+- `email`: `String`, opcional, normalizado a minúsculas.
+- `timestamps: true`: agrega fechas de creación y actualización.
+
+En `contact.model.ts`, crear el modelo mediante `model<IContactos>(...)`.
+
+**Nota importante:** para evitar correos duplicados de manera fiable, además de comprobarlos en el servicio, conviene configurar un **índice único parcial** para correos informados. Un índice antiguo con `unique: true` puede requerir ajustes en MongoDB si el correo es opcional.
+
+###  Crear tipos e interfaces
+
+En `src/types/contactos.interface.ts` definí los tipos para los datos de contacto y los parámetros de las rutas (`contactoId`, `DTOContacto`, etc.). También practiqué genéricos de Express para tipar `req.params` y `req.body`.
+
+Ejemplo de lo que quería lograr:
+
+```ts
+const { id } = req.params; // id tipado como string
+const datos = req.body;    // datos tipados con DTOContacto
+```
+
+###  Implementar rutas, controladores y servicios
+
+Para cada operación seguí este recorrido:
+
+```text
+Petición HTTP
+  → route
+  → validator (cuando aplica)
+  → controller
+  → service
+  → Mongoose / MongoDB
+  → respuesta JSON
+```
+
+**En el servicio** hice consultas como `find()`, `findById()`, `create()`, `findByIdAndUpdate()` y `findByIdAndDelete()`.
+
+**En el controlador** extraje parámetros y datos del body, llamé al servicio y devolví respuestas HTTP.
+
+###  Validar los datos con express-validator
+
+Separé las reglas en `ContactValidator`:
+
+- `saveContacto`: requiere `name` y `telefono`; `email` es opcional pero debe tener formato válido si se proporciona.
+- `updateContacto`: permite enviar solamente los campos que quiero modificar (`PATCH`).
+- `handleValidationError`: recopila los errores y devuelve una respuesta cuando la petición no cumple las reglas.
+
+**Lo que aprendí:** `.optional()` no es lo mismo que `.notEmpty()`, y `.withMessage()` debe asociarse a un validador como `.isEmail()` o `.notEmpty()`.
+
+###  Manejar errores con `AppError`
+
+Creé una clase personalizada para representar errores de negocio:
+
+```ts
+export class AppError extends Error {
+  constructor(public statusCode: number, message: string) {
+    super(message);
+    this.name = "AppError";
+  }
+}
+```
+
+Ejemplos: `404` cuando no existe el contacto y `409` cuando el correo o teléfono ya está registrado. Por ahora, cada controlador utiliza `try/catch`; **un middleware global de errores queda para un proyecto futuro**.
+
+
+## Endpoints que implementé
+
+URL base de ejemplo: `http://localhost:3000` (cambiar el puerto si `APP_PORT` es diferente).
+
+| Método | Endpoint | ¿Para qué sirve? |
 |---|---|---|
-| `GET` | `/api/health` | Verificar el estado de la API. |
-| `GET` | `/api/contactos` | Obtener todos los contactos. |
-| `GET` | `/api/contactos/:id` | Obtener un contacto por ID. |
-| `POST` | `/api/contactos/create` | Crear un contacto. |
-| `PATCH` | `/api/contactos/:id` | Actualizar parcialmente un contacto. |
-| `DELETE` | `/api/contactos/:id` | Eliminar un contacto. |
+| `GET` | `/api/health` | Comprobar que la API responde |
+| `GET` | `/api/contactos` | Obtener todos los contactos |
+| `GET` | `/api/contactos/:id` | Obtener un contacto por ID |
+| `POST` | `/api/contactos/create` | Crear un contacto |
+| `PATCH` | `/api/contactos/:id` | Actualizar algunos campos |
+| `DELETE` | `/api/contactos/:id` | Eliminar un contacto |
 
-### Crear un contacto
+### Ejemplo de creación
 
-**Petición:** `POST /api/contactos/create`
+```http
+POST /api/contactos/create
+Content-Type: application/json
+```
 
 ```json
 {
@@ -116,20 +299,12 @@ URL base de ejemplo: `http://localhost:3000/api/contactos`
 }
 ```
 
-El campo `email` es opcional. Para crear un contacto sin correo:
+### Ejemplo de actualización parcial
 
-```json
-{
-  "name": "Luis Pérez",
-  "telefono": "2287654321"
-}
+```http
+PATCH /api/contactos/ID_DEL_CONTACTO
+Content-Type: application/json
 ```
-
-### Actualizar un contacto
-
-**Petición:** `PATCH /api/contactos/:id`
-
-Puedes enviar únicamente los campos que deseas modificar:
 
 ```json
 {
@@ -137,26 +312,39 @@ Puedes enviar únicamente los campos que deseas modificar:
 }
 ```
 
-### Códigos de respuesta
+## Pruebas que hice en Bruno
 
-- `200 OK`: consulta, actualización o eliminación exitosa.
-- `201 Created`: contacto creado.
-- `404 Not Found`: contacto no encontrado.
-- `409 Conflict`: correo o teléfono ya registrado.
-- `500 Internal Server Error`: error inesperado del servidor.
+- Crear un contacto con datos válidos.
+- Intentar crear contactos con teléfono o correo duplicados.
+- Crear un contacto sin correo.
+- Obtener todos los contactos y consultar uno por ID.
+- Actualizar solo el nombre de un contacto.
+- Comprobar validaciones con campos vacíos o formatos incorrectos.
+- Eliminar un contacto existente e intentar eliminar uno inexistente.
 
-Las solicitudes con datos inválidos también son rechazadas por las validaciones de la API.
+## Conceptos que quiero recordar
 
-## Pruebas
+| Concepto | Lo que aprendí |
+|---|---|
+| `req.params` | Contiene los parámetros de la URL, como `:id` |
+| `req.body` | Contiene los datos enviados en JSON |
+| `$or` | Permite buscar coincidencias por correo **o** teléfono |
+| `findById()` | Busca un documento por su ID |
+| `returnDocument: "after"` | Devuelve el documento actualizado |
+| `runValidators: true` | Aplica validaciones del esquema al actualizar |
+| `404` | Recurso no encontrado |
+| `409` | Conflicto, por ejemplo, un duplicado |
+| `201` | Recurso creado |
+| `200` | Solicitud realizada correctamente |
 
-Los endpoints se probaron manualmente con **Bruno**, incluyendo operaciones exitosas y casos de error.
+## Mejoras para otro proyecto
 
-## Próximos pasos
+- Middleware global de errores y tratamiento de IDs de MongoDB inválidos.
+- Manejo de duplicados también a nivel de índices y errores de MongoDB.
+- Validación de que `PATCH` reciba al menos un campo.
+- Pruebas automatizadas.
+- Documentación OpenAPI/Swagger, si el proyecto lo necesita.
 
-- Desarrollar el frontend con **React y TypeScript**.
-- Conectar el frontend a la API mediante **Axios**.
-- Mejorar el manejo centralizado de errores en futuras versiones.
+## Siguiente etapa
 
-## Nota
-
-Este proyecto es una práctica de desarrollo full stack. La API implementa las operaciones CRUD principales, pero todavía puede recibir mejoras antes de utilizarse en producción.
+Construir el **frontend con React + TypeScript**, consumir la API con Axios y practicar `useState`, `useEffect`, formularios controlados, props, estados de carga/error y CRUD desde la interfaz.
