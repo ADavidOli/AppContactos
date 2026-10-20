@@ -58,7 +58,14 @@ backend/
 - Node.js y npm instalados.
 - Una base de datos MongoDB (por ejemplo, MongoDB Atlas).
 
-## Instalación y configuración
+
+## instalacion y configuracion desde la creacion del proyecto.
+1. Inicia el proyecto de express
+    ```bash 
+        npm init 
+    ```
+
+## Instalación y configuracion desde gitclone
 
 1. Clona el repositorio y entra a la carpeta del backend:
 
