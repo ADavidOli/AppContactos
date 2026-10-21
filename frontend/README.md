@@ -34,6 +34,7 @@ cd frontend
 npm install
 npm install axios
 npm install tailwindcss @tailwindcss/vite
+npm install react-router
 ```
 
 Para iniciar el servidor de desarrollo:

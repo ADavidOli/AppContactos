@@ -1,13 +1,20 @@
+import { Route, Routes, BrowserRouter } from "react-router";
+import ContactosPage from "./pages/ContactosPage";
+import CrearContacto from "./pages/CrearContacto";
+import MainLayout from "./layouts/MainLayout";
 
 function App() {
 
   return (
     <>
-      <div className="flex items-center justify-center h-screen bg-slate-100">
-        <h1 className="text-4xl font-bold text-blue-600 underline">
-          ¡Tailwind funcionando en React!
-        </h1>
-      </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout/>} >
+          <Route index element={<ContactosPage/>}/>
+          <Route path="/crear" element={<CrearContacto/>}/>
+        </Route>
+      </Routes>
+    </BrowserRouter>
     </>
   )
 }
