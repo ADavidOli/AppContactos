@@ -13,7 +13,10 @@ export interface Contactos extends DTOContacto {
 }
 
 export interface ContactoProps {
-    contacto: Contactos
+    contacto: Contactos,
+    handleEliminar: (id:string)=> void,
+    handleEditar: (id:string)=> void
+
 }
 
 export interface ContactoResponse {

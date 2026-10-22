@@ -1,7 +1,12 @@
 import type { ContactoProps } from "../types/contacto.type"
+import ButtonComponent from "./ButtonComponent"
 
 
-const CotactCard = ({ contacto }: ContactoProps) => {
+const CotactCard = ({ contacto, handleEliminar, handleEditar }: ContactoProps) => {
+
+
+
+
   return (
     <div
       className="p-5 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200"
@@ -24,7 +29,10 @@ const CotactCard = ({ contacto }: ContactoProps) => {
             <span>{contacto.telefono}</span>
           </p>
         )}
+
       </div>
+      <ButtonComponent status="eliminar" onClick={() => handleEliminar(contacto._id)} />
+      <ButtonComponent status="editar" onClick={() => handleEditar(contacto._id)} />
     </div>
   )
 }

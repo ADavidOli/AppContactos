@@ -25,14 +25,9 @@ const FormularioContacto = () => {
 
         const timer = setTimeout(() => {
             if (success) {
-                setNombre("");
-                setEmail("");
-                setTelefono("");
                 navigate("/");
             }
-
             setError(null);
-            setSuccess(null);
         }, 2000);
 
         return () => clearTimeout(timer);

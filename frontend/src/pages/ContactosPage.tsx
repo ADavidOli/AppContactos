@@ -34,6 +34,33 @@ const ContactosPage = () => {
         cargarContactos();
     }, [])
 
+    const handleEliminar = async (id: string) => {
+        const confirmacion = window.confirm('¿Estás seguro que deseas eliminar este elemento?');
+        try {
+
+            if (confirmacion) {
+                await contactoService.delete(id);
+                // recargamos la vista con prev y con filter para mostrar ya los contactos actualizados
+                setContactos((prevContactos) => prevContactos.filter((contacto) => contacto._id !== id))
+            }else{
+                console.log('Eliminacion Cancelada')
+            }
+
+
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    const handlEditar = (id: string) => {
+        console.log(id);
+
+    }
+
+
+
+    // CONDICIONALES DE RECARGA 
     if (cargando) {
         return (
             // estilo en tailwind animacion de carga
@@ -80,6 +107,8 @@ const ContactosPage = () => {
                             <CotactCard
                                 key={contacto._id}
                                 contacto={contacto}
+                                handleEliminar={handleEliminar}
+                                handleEditar={handlEditar}
                             />
                         ))}
                     </div>

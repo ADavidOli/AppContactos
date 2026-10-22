@@ -29,5 +29,17 @@ export const contactoService = {
             }
             throw error
         }
+    },
+    delete: async (id: string) =>{
+        try {
+            const response = await api.delete(`/contactos/${id}`);
+            return response.data
+            
+        } catch (error) {
+            if(axios.isAxiosError<AxiosTypeError>(error)){
+                console.log("Mensaje:", error.response?.data.msg);
+                console.log("Status:", error.response?.status);
+            }
+        }
     }
 }
