@@ -16,7 +16,8 @@ export const constactosSchema = new Schema<IContactos>({
     },
     telefono: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     }
 }, {
     timestamps: true

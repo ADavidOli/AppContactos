@@ -11,7 +11,7 @@ export class contactosService {
     }
 
     static async createContacto(contacto: DTOContacto) {
-        const newContacto = await ContactosModel.findOne({telefono: contacto.telefono});
+        const newContacto = await ContactosModel.findOne({ telefono: contacto.telefono });
         if (newContacto) {
             throw new AppError(409, "El contacto ya están registrados");
         }
@@ -30,6 +30,15 @@ export class contactosService {
     }
     static async updateContacto(data: contactoId, contacto: DTOContacto) {
         const { id } = data;
+
+        const telefonoExiste = await ContactosModel.findOne({
+            telefono: contacto.telefono,
+            _id: { $ne: id }
+        });
+
+        if (telefonoExiste) {
+            throw new AppError(409, "Numero de telefono ya registrado en otro contacto");
+        }
         const update = await ContactosModel.findOneAndUpdate({ _id: id }, contacto, {
             returnDocument: 'after',
             runValidators: true
