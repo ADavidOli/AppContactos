@@ -178,7 +178,7 @@ En `src/services/Contactos.service.ts` centralicé las operaciones de comunicaci
 Las principales operaciones son:
 
 | Método del servicio | Operación HTTP | Función |
-|---|---|---|
+| --- | --- | --- |
 | `getAll()` | GET | Obtener todos los contactos |
 | `getById(id)` | GET | Obtener un contacto por su ID |
 | `create(contacto)` | POST | Crear un contacto |
