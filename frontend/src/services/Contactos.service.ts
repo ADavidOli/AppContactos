@@ -1,7 +1,7 @@
 import api from "../api/AxiosClient";
-import type { ContactoResponse, DTOContacto } from "../types/contacto.type";
+import type { contactById, ContactoResponse, Contactos, DTOContacto } from "../types/contacto.type";
 import type { AxiosTypeError } from "../types/component.Type";
-import  axios  from "axios";
+import axios from "axios";
 
 export const contactoService = {
     getAll: async () => {
@@ -18,28 +18,53 @@ export const contactoService = {
             throw error;
         }
     },
-    create: async (contacto:DTOContacto) => {
+    create: async (contacto: DTOContacto) => {
         try {
-            const response = await api.post("/contactos/create",contacto)
+            const response = await api.post("/contactos/create", contacto)
             return response.data
         } catch (error) {
-            if(axios.isAxiosError<AxiosTypeError>(error)){
+            if (axios.isAxiosError<AxiosTypeError>(error)) {
                 console.error("Mensaje", error.response?.data.msg);
                 console.error("Estado", error.response?.status);
             }
             throw error
         }
     },
-    delete: async (id: string) =>{
+    delete: async (id: string) => {
         try {
             const response = await api.delete(`/contactos/${id}`);
             return response.data
-            
+
         } catch (error) {
-            if(axios.isAxiosError<AxiosTypeError>(error)){
+            if (axios.isAxiosError<AxiosTypeError>(error)) {
                 console.log("Mensaje:", error.response?.data.msg);
                 console.log("Status:", error.response?.status);
             }
+            throw error
+        }
+    },
+    update: async (id: string, contacto: Partial<DTOContacto>) => {
+        try {
+            const response = await api.patch(`/contactos/${id}`, contacto);
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError<AxiosTypeError>(error)) {
+                console.log("Mensaje:", error.response?.data.msg);
+                console.log("Status:", error.response?.status);
+            }
+            throw error
+        }
+    },
+    getById: async (id: string): Promise<Contactos> => {
+        try {
+            const response = await api.get<contactById>(`/contactos/${id}`);
+            return response.data.contacto;
+        } catch (error) {
+            if (axios.isAxiosError<AxiosTypeError>(error)) {
+                console.log("Mensaje:", error.response?.data.msg);
+                console.log("Status:", error.response?.status);
+            }
+            throw error
         }
     }
 }

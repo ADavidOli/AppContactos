@@ -24,4 +24,12 @@ export interface ContactoResponse {
 }
 
 
+export interface contactById {
+    contacto: Contactos;
+}
+
+
+export interface FormularioProps {
+    contactoInicial?: Contactos
+}
 

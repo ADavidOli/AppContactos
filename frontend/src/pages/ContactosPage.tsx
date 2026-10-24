@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router";
 import type { Contactos } from "../types/contacto.type"
 import CotactCard from "../components/CotactCard";
 import { contactoService } from "../services/Contactos.service";
@@ -9,6 +10,7 @@ const ContactosPage = () => {
     const [contactos, setContactos] = useState<Contactos[]>([]);
     const [cargando, setCargando] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const cargarContactos = async () => {
@@ -24,6 +26,8 @@ const ContactosPage = () => {
                 ]);
 
                 setContactos(datos);
+                // cacheamos
+                // console.log(datos);
             } catch (error) {
                 console.error(error);
                 setError("Error al cargar la lista de contactos.");
@@ -35,27 +39,29 @@ const ContactosPage = () => {
     }, [])
 
     const handleEliminar = async (id: string) => {
-        const confirmacion = window.confirm('¿Estás seguro que deseas eliminar este elemento?');
+        const confirmacion = window.confirm(
+            "¿Estás seguro de que deseas eliminar este contacto?"
+        );
+
+        if (!confirmacion) return; //retorno anticipado, early return.
+        // quiere decir que si el usuario selecciona cancelar, el handleElimnar retorna y sale
+
         try {
+            await contactoService.delete(id);
 
-            if (confirmacion) {
-                await contactoService.delete(id);
-                // recargamos la vista con prev y con filter para mostrar ya los contactos actualizados
-                setContactos((prevContactos) => prevContactos.filter((contacto) => contacto._id !== id))
-            }else{
-                console.log('Eliminacion Cancelada')
-            }
-
+            setContactos((prevContactos) =>
+                // actualizamos el estado react
+                prevContactos.filter((contacto) => contacto._id !== id)
+            );
 
         } catch (error) {
-            console.log(error);
+            console.error("Error al eliminar el contacto:", error);
         }
-
-    }
+    };
 
     const handlEditar = (id: string) => {
-        console.log(id);
-
+        // console.log(id);
+        navigate(`/editar/${id}`)
     }
 
 

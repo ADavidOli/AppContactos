@@ -5,21 +5,23 @@ import axios from "axios";
 import SuccessComponent from "./SuccessComponent";
 import ErrorComponent from "./ErrorComponent";
 
-import type { DTOContacto } from "../types/contacto.type";
+import type { DTOContacto, FormularioProps } from "../types/contacto.type";
 import type { AxiosTypeError } from "../types/component.Type";
 import { contactoService } from "../services/Contactos.service";
 
-const FormularioContacto = () => {
+const FormularioContacto = ({ contactoInicial }: FormularioProps) => {
 
-    const [nombre, setNombre] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [telefono, setTelefono] = useState<string>('');
+    const [nombre, setNombre] = useState<string>(contactoInicial?.name ?? '');
+    const [email, setEmail] = useState<string>(contactoInicial?.email ?? '');
+    const [telefono, setTelefono] = useState<string>(contactoInicial?.telefono ?? '');
+
     const [guardando, setGuardando] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const navigate = useNavigate()
 
 
+    // useEffect para mandar a la pagina de inicio
     useEffect(() => {
         if (!error && !success) return;
 
@@ -33,6 +35,7 @@ const FormularioContacto = () => {
         return () => clearTimeout(timer);
     }, [error, success, navigate]);
 
+    // handleSubmit
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -46,8 +49,13 @@ const FormularioContacto = () => {
             setError(null);
             setSuccess(null);
 
-            const response = await contactoService.create(nuevoContacto);
-            setSuccess(response.msg)
+            if (contactoInicial) {
+                const response = await contactoService.update(contactoInicial._id, nuevoContacto);
+                setSuccess(response.msg)
+            } else {
+                const response = await contactoService.create(nuevoContacto);
+                setSuccess(response.msg)
+            }
             // navigate('/')
 
         } catch (error) {
@@ -134,7 +142,7 @@ const FormularioContacto = () => {
                 disabled={guardando}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors cursor-pointer"
             >
-                {guardando ? "Guardando..." : "Guardar contacto"}
+                {guardando ? "Guardando..." : contactoInicial ?  "Actualizar contacto": "Guardar contacto"}
             </button>
         </form>
     );
