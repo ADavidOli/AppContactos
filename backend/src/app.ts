@@ -13,7 +13,7 @@ app.use(express.json());
 app.get("/api/health", (_req, res)=>{
     res.json({
         status: "ok",
-        message: "Gestos de contactos funcionando"
+        message: "Gestor de contactos funcionando"
     });
 })
 // uso de rutas
